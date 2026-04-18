@@ -41,16 +41,41 @@
                     </div>
                 </div>
             </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg shadow-lg">
+                <h3 class="text-[10px] font-bold text-cyan-500 mb-3 uppercase tracking-tighter italic">Control de Hilos</h3>
+                <input type="range" min="1" max="64" value="32" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500 mb-2">
+                <div class="flex justify-between text-[9px] text-slate-500">
+                    <span>32_HILOS_ACTIVOS</span>
+                    <span>64_MAX</span>
+                </div>
+            </div>
         </div>
 
         <div class="col-span-12 lg:col-span-6 space-y-4">
             <div class="bg-slate-900 border border-blue-900/30 p-6 rounded-xl shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-3 flex space-x-2">
+                    <span class="text-[8px] bg-blue-900/50 text-blue-300 px-2 py-1 rounded">SSL_ENCRIPTADO</span>
+                    <span class="text-[8px] bg-slate-800 text-slate-400 px-2 py-1 rounded">V4.0.2_PRO</span>
+                </div>
+                
                 <h1 class="text-lg font-bold text-white flex items-center mb-6 tracking-tight">
                     <div class="w-3 h-3 bg-blue-500 rounded-sm mr-3 shadow-[0_0_10px_rgba(59,130,246,1)]"></div>
                     SISTEMA_BYPASS_TICKETS
                 </h1>
 
                 <div class="space-y-4">
+                    <div class="bg-black p-3 rounded border border-slate-800 flex justify-between items-center">
+                        <div>
+                            <span class="block text-[8px] text-slate-500 uppercase font-bold">Objetivo</span>
+                            <span class="text-xs text-blue-400 font-bold uppercase">Real Madrid CF - Champions League</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[8px] text-slate-500 uppercase font-bold">Prioridad</span>
+                            <span class="text-[10px] text-green-500">MÁXIMA</span>
+                        </div>
+                    </div>
+
                     <button id="runBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow-xl transition-all transform active:scale-95 text-sm tracking-widest uppercase">
                         INICIAR SECUENCIA DE ACCESO
                     </button>
@@ -61,28 +86,61 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-span-12 lg:col-span-3 space-y-4">
+            <div class="bg-black border border-slate-800 p-4 rounded-lg h-80 flex flex-col shadow-lg">
+                <h3 class="text-[10px] font-bold text-green-500 mb-4 uppercase tracking-tighter italic">Flujo de Paquetes Raw</h3>
+                <div id="packet-stream" class="text-[9px] text-green-800 space-y-1 font-mono flex-1 overflow-hidden opacity-60">
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-red-900/20 p-4 rounded-lg shadow-lg">
+                <h3 class="text-[10px] font-bold text-red-500 mb-2 uppercase tracking-tighter italic">Detección Anti-Bot</h3>
+                <div class="space-y-2 text-[9px]">
+                    <div class="flex justify-between"><span>AKAMAI_WAF</span><span class="text-green-500">EVADIDO</span></div>
+                    <div class="flex justify-between"><span>JS_CHALLENGE</span><span class="text-green-500">RESUELTO</span></div>
+                    <div class="flex justify-between"><span>QUEUE_ID</span><span class="text-blue-400">BYPASS_OK</span></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         const terminal = document.getElementById('main-terminal');
+        const packetStream = document.getElementById('packet-stream');
         const btn = document.getElementById('runBtn');
 
         const logs = [
             "Estableciendo túnel SSH con nodo MAD-01...",
             "Cargando módulos de evasión de huella digital...",
-            "Bypass de Akamai Cookie iniciado...",
+            "Sincronizando reloj de servidor con Real Madrid...",
+            "Bypass de Akamai Cookie (ak_bmsc) iniciado...",
+            "Generando cabeceras de navegación humana...",
             "Saltando sala de espera virtual (Queue-it)...",
-            "Validando disponibilidad de asientos...",
+            "Inyectando token de sesión en el carrito...",
+            "Validando disponibilidad de asientos en tiempo real...",
             "Acceso al checkout desbloqueado."
         ];
 
-        // Event listener for the terminal to handle clicks on dynamic buttons
-        terminal.addEventListener('click', (e) => {
-            const url = e.target.getAttribute('data-url');
-            if (url) {
-                window.location.assign(url); // More reliable for hosted environments
-            }
-        });
+        function generateJSON() {
+            const hex = Math.random().toString(16).toUpperCase().substring(2, 10);
+            const data = {
+                "packet_id": hex,
+                "status": "200",
+                "target": "RM_TICKET_API",
+                "bypass": true
+            };
+            const p = document.createElement('p');
+            p.innerText = JSON.stringify(data);
+            packetStream.prepend(p);
+            if (packetStream.children.length > 25) packetStream.lastChild.remove();
+        }
+
+        // Functions to handle the direct links
+        function openPortal(url) {
+            window.open(url, '_blank');
+        }
 
         function askRedirect() {
             const prompt = document.createElement('div');
@@ -90,8 +148,8 @@
             prompt.innerHTML = `
                 <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Seleccionar Portal de Destino:</p>
                 <div class="grid grid-cols-1 gap-2">
-                    <button data-url="https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?queueittoken=e_realmadridliga2526~ts_1776494312~ce_true~q_59e67146-7c6c-4ce9-aa18-8f40719df9c2~rt_queue~ti_80dfe7fa-1b05-481f-adda-ebfa4d9f22b0~h_09afd7ad119ef3b7f6c10516f29d6dfff59c88821412399a35c06b655662702a&viewCode=V_blockmap_view" class="redirect-trigger w-full py-2 bg-blue-900/40 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] transition-all uppercase font-bold">Real Madrid Matchday Access</button>
-                    <button data-url="https://www.ticketmaster.es" class="redirect-trigger w-full py-2 bg-slate-900 hover:bg-blue-600 border border-slate-700 rounded text-[9px] transition-all uppercase font-bold">Ticketmaster España</button>
+                    <button onclick="openPortal('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/40 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] transition-all uppercase font-bold">Real Madrid Official</button>
+                    <button onclick="openPortal('https://www.ticketmaster.es')" class="w-full py-2 bg-slate-900 hover:bg-blue-600 border border-slate-700 rounded text-[9px] transition-all uppercase font-bold">Ticketmaster España</button>
                 </div>
             `;
             terminal.appendChild(prompt);
@@ -103,6 +161,8 @@
             btn.innerText = "EJECUTANDO...";
             btn.classList.add('opacity-50');
             terminal.innerHTML = "";
+            
+            const packetInterval = setInterval(generateJSON, 300);
 
             let i = 0;
             const logInterval = setInterval(() => {
@@ -115,14 +175,17 @@
                     i++;
                 } else {
                     clearInterval(logInterval);
+                    clearInterval(packetInterval);
+                    
                     const success = document.createElement('div');
                     success.className = "bg-green-500/10 border border-green-500 p-3 text-green-500 font-bold mt-4 text-center rounded";
-                    success.innerHTML = ">>> ACCESO CONCEDIDO: BYPASS COMPLETADO";
+                    success.innerHTML = ">>> ACCESO CONCEDIDO: TÚNEL ESTABLECIDO";
                     terminal.appendChild(success);
+                    
                     askRedirect();
                     btn.innerText = "ACCESO DISPONIBLE";
                 }
-            }, 800);
+            }, 1100);
         });
     </script>
 </body>
