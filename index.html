@@ -1,234 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor de Entradas Enterprise | v4.0</title>
+    <title>Estado del Sistema | Real Madrid CF</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;700;900&display=swap');
         
-        /* Terminal Styles */
-        body { font-family: 'JetBrains+Mono', monospace; background-color: #020617; margin: 0; overflow-x: hidden; }
-        .scanning { background: linear-gradient(to bottom, transparent 50%, rgba(59, 130, 246, 0.1) 50%); background-size: 100% 4px; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; }
-        .node-pulse { animation: node-pulse 2s infinite; }
-        @keyframes node-pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        /* Queue-it Page Styles (Hidden by default) */
-        #queue-page {
-            display: none;
-            background-color: #f8f8f8;
-            min-height: 100vh;
-            width: 100vw;
+        body { 
+            font-family: 'Libre+Franklin', sans-serif; 
+            background-color: #000000; 
+            margin: 0; 
+            overflow: hidden; 
+            height: 100vh;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #000;
         }
 
-        .main-container {
-            background-color: #fff;
-            width: 375px;
-            max-width: 95%;
-            height: 750px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #ddd;
-            position: relative;
-        }
-
-        .header-queue {
-            padding: 25px 20px 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid #001f4c;
-        }
-
-        .header-queue img { height: 35px; width: auto; }
-
-        .content-queue {
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* Pantalla completa de bloqueo */
+        .stop-container {
             text-align: center;
+            padding: 20px;
         }
 
-        .top-notice { font-size: 12px; color: #333; margin-bottom: 40px; }
-        .title-queue { font-size: 32px; font-weight: 500; margin-bottom: 15px; }
-        .description-queue { font-size: 14px; line-height: 1.5; color: #000; margin-bottom: 30px; }
+        .bot-stopped-title {
+            font-size: 5rem;
+            font-weight: 900;
+            font-style: italic;
+            color: #ff0000;
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            animation: flash 1.5s infinite;
+        }
 
-        .progress-container {
+        .status-badge {
+            display: inline-block;
+            background-color: #ff0000;
+            color: white;
+            padding: 5px 15px;
+            font-weight: 900;
+            border-radius: 4px;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+        }
+
+        .admin-msg {
+            color: #64748b;
+            font-size: 1.2rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Líneas de interferencia decorativas */
+        .scanline {
             width: 100%;
-            background-color: #eef5ff;
-            height: 6px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 40px;
+            height: 2px;
+            background: rgba(255, 0, 0, 0.1);
+            position: absolute;
+            top: 50%;
+            animation: scan 4s linear infinite;
         }
 
-        .progress-bar {
-            height: 100%;
-            background-color: #3b82f6;
-            width: 5%;
-            border-radius: 10px;
-            animation: load 15s forwards linear; /* Matches your requirement */
-        }
-
-        .wait-time { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-        .time-value { font-size: 20px; font-weight: 700; margin-bottom: 50px; }
-        .cola-info { font-size: 10px; color: #666; margin-top: 20px; }
-        .cola-info strong { color: #333; margin-right: 5px; }
-        .footer-logo { margin-top: 25px; height: 66px; width: auto; object-fit: contain; }
-
-        @keyframes load {
-            0% { width: 5%; }
-            100% { width: 100%; }
+        @keyframes scan {
+            from { top: 0%; }
+            to { top: 100%; }
         }
     </style>
 </head>
-<body class="scanning">
+<body>
 
-    <div id="terminal-screen" class="p-6 flex justify-center items-center min-h-screen">
-        <div class="w-full max-w-6xl grid grid-cols-12 gap-4">
-            
-            <div class="col-span-12 lg:col-span-3 space-y-4">
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg">
-                    <h3 class="text-[10px] font-bold text-blue-500 mb-4 uppercase italic">Red de Nodos Global</h3>
-                    <div class="space-y-3 text-[10px]">
-                        <div class="flex justify-between items-center"><span class="text-slate-500">MADRID_ES</span><span class="w-2 h-2 bg-green-500 rounded-full node-pulse"></span></div>
-                        <div class="flex justify-between items-center"><span class="text-slate-500">TOKIO_JP</span><span class="w-2 h-2 bg-yellow-500 rounded-full node-pulse"></span></div>
-                    </div>
-                </div>
-            </div>
+    <div class="scanline"></div>
 
-            <div class="col-span-12 lg:col-span-6 space-y-4">
-                <div class="bg-slate-900 border border-blue-900/30 p-6 rounded-xl shadow-2xl relative overflow-hidden">
-                    <h1 class="text-lg font-bold text-white flex items-center mb-6">
-                        <div class="w-3 h-3 bg-blue-500 rounded-sm mr-3"></div>
-                        SISTEMA_BYPASS_TICKETS
-                    </h1>
-                    <div class="space-y-4">
-                        <button id="runBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow-xl transition-all text-sm tracking-widest uppercase">
-                            INICIAR SECUENCIA DE ACCESO
-                        </button>
-                        <div id="main-terminal" class="bg-black border border-slate-800 rounded p-4 h-72 overflow-y-auto font-mono text-[11px] leading-relaxed shadow-inner">
-                            <p class="text-slate-600 italic">Esperando inicialización de hardware...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-span-12 lg:col-span-3 space-y-4">
-                <div class="bg-black border border-slate-800 p-4 rounded-lg h-60 overflow-hidden opacity-60">
-                    <h3 class="text-[10px] font-bold text-green-500 mb-4 italic">Flujo de Paquetes Raw</h3>
-                    <div id="packet-stream" class="text-[9px] text-green-800 space-y-1"></div>
-                </div>
-            </div>
-        </div>
+    <div class="stop-container">
+        <div class="status-badge">SISTEMA OFF</div>
+        <h1 class="bot-stopped-title">BOT<br>DETENIDO</h1>
+        <p class="admin-msg">Acceso restringido por el administrador</p>
     </div>
 
-    <div id="queue-page">
-        <div class="main-container">
-            <div class="header-queue">
-                <img src="https://i.ibb.co/SzY0DBS/IMG-2614.jpg" alt="Real Madrid Logo">
-            </div>
-            <div class="content-queue">
-                <p class="top-notice">Puedes salir de esta página sin perder tu lugar en la cola en línea</p>
-                <h1 class="title-queue">Real Madrid C.F.</h1>
-                <p class="description-queue">
-                    Tu bot está saltándose la cola.
-El bot está activo, está evitando la cola, procesando…….. ahora es tu turno, puedes realizar la compra.
-                </p>
-                <div class="progress-container">
-                    <div id="final-bar" class="progress-bar"></div>
-                </div>
-                <p class="wait-time">Entrarás en el sitio web en:</p>
-                <p class="time-value">menos de un minuto</p>
-                <div class="cola-info">
-                    <strong>Cola identifier</strong> 513c6289-1eec-43e3-bf03-ababcdccc43b
-                </div>
-                <img src="https://i.ibb.co/zhk5mtyP/IMG-2620.jpg" class="footer-logo" alt="Queue-it">
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const terminal = document.getElementById('main-terminal');
-        const packetStream = document.getElementById('packet-stream');
-        const btn = document.getElementById('runBtn');
-        const terminalScreen = document.getElementById('terminal-screen');
-        const queuePage = document.getElementById('queue-page');
-
-        const logs = [
-            "Estableciendo túnel SSH con nodo MAD-01...",
-            "Sincronizando reloj de servidor con Real Madrid...",
-            "Bypass de Akamai Cookie iniciado...",
-            "Saltando sala de espera virtual (Queue-it)...",
-            "Acceso al checkout desbloqueado."
-        ];
-
-        function generateJSON() {
-            const hex = Math.random().toString(16).toUpperCase().substring(2, 10);
-            const p = document.createElement('p');
-            p.innerText = `{"id":"${hex}","status":"200","bypass":true}`;
-            packetStream.prepend(p);
-            if (packetStream.children.length > 15) packetStream.lastChild.remove();
-        }
-
-        // REDIRECTION LOGIC
-        function startQueueSequence() {
-            // 1. Hide terminal, Show Queue-it
-            terminalScreen.style.display = 'none';
-            document.body.classList.remove('scanning');
-            document.body.style.backgroundColor = '#f8f8f8';
-            queuePage.style.display = 'flex';
-
-            // 2. Wait for 15 seconds then redirect
-            setTimeout(() => {
-                window.location.href = "https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?viewCode=V_blockmap_view&queueittoken=e_realmadridliga2526~ts_1776499517~ce_true~q_e8fc433b-f446-4e22-9e0f-44ff55f268df~rt_queue~ti_f2e9e23d-2cec-4c52-87a0-b632cbfd24f7~h_5ddae646ada609411b7c5eb8a39dec685aa2af6a0a7eec63ddacbc99e2b18854";
-            }, 15000); 
-        }
-
-        function askRedirect() {
-            const prompt = document.createElement('div');
-            prompt.className = "bg-slate-800 p-4 border border-blue-500/30 mt-4 rounded-lg space-y-3";
-            prompt.innerHTML = `
-                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center">Seleccionar Portal:</p>
-                <div class="grid grid-cols-1 gap-2">
-                    <button id="rm-trigger" class="w-full py-2 bg-blue-900/40 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold">Real Madrid Official</button>
-                    <button onclick="window.location.href='https://www.ticketmaster.es'" class="w-full py-2 bg-slate-900 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold">Ticketmaster España</button>
-                </div>
-            `;
-            terminal.appendChild(prompt);
-            terminal.scrollTop = terminal.scrollHeight;
-
-            document.getElementById('rm-trigger').addEventListener('click', startQueueSequence);
-        }
-
-        btn.addEventListener('click', () => {
-            btn.disabled = true;
-            btn.innerText = "EJECUTANDO...";
-            terminal.innerHTML = "";
-            const packetInterval = setInterval(generateJSON, 300);
-            let i = 0;
-            const logInterval = setInterval(() => {
-                if (i < logs.length) {
-                    const line = document.createElement('p');
-                    line.className = "mb-1 border-l-2 border-blue-500 pl-2 bg-blue-500/5";
-                    line.innerHTML = `<span class="text-blue-400">${logs[i]}</span>`;
-                    terminal.appendChild(line);
-                    terminal.scrollTop = terminal.scrollHeight;
-                    i++;
-                } else {
-                    clearInterval(logInterval);
-                    clearInterval(packetInterval);
-                    askRedirect();
-                    btn.innerText = "ACCESO DISPONIBLE";
-                }
-            }, 1000);
-        });
-    </script>
 </body>
 </html>
