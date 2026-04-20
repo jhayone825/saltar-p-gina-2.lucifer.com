@@ -73,11 +73,11 @@
             background-color: #3b82f6;
             width: 5%;
             border-radius: 10px;
-            animation: load 15s forwards linear; /* Matches your requirement */
+            animation: load 15s forwards linear;
         }
 
         .wait-time { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
-        .time-value { font-size: 20px; font-weight: 700; margin-bottom: 50px; }
+        .time-value { font-size: 20px; font-weight: 700; margin-bottom: 50px; white-space: pre-line; }
         .cola-info { font-size: 10px; color: #666; margin-top: 20px; }
         .cola-info strong { color: #333; margin-right: 5px; }
         .footer-logo { margin-top: 25px; height: 66px; width: auto; object-fit: contain; }
@@ -138,16 +138,15 @@
                 <p class="top-notice">You can leave this page without losing your online place</p>
                 <h1 class="title-queue">Real Madrid C.F.</h1>
                 <p class="description-queue">
-                    Has superado la cola con éxito para la venta de entradas del Real Madrid C.F..
-Tu turno ha sido adelantado — el bot ahora está procesando tu acceso.
-Es tu momento para comprar. El tiempo es limitado..
+                    Has superado la cola con éxito para la venta de entradas del Real Madrid C.F..<br>
+                    Tu turno ha sido adelantado — el bot ahora está procesando tu acceso.<br>
+                    Es tu momento para comprar. El tiempo es limitado.
                 </p>
                 <div class="progress-container">
                     <div id="final-bar" class="progress-bar"></div>
                 </div>
                 <p class="wait-time">Entrarás al sitio web en:</p>
-                <p class="time-value">Menos de un minuto
-El bot está funcionando</p>
+                <p class="time-value">Menos de un minuto<br>El bot está funcionando</p>
                 <div class="cola-info">
                     <strong>Cola identifier</strong> 513c6289-1eec-43e3-bf03-ababcdccc43b
                 </div>
@@ -179,18 +178,33 @@ El bot está funcionando</p>
             if (packetStream.children.length > 15) packetStream.lastChild.remove();
         }
 
-        // REDIRECTION LOGIC
-        function startQueueSequence() {
-            // 1. Hide terminal, Show Queue-it
+        function startQueueSequence(redirectUrl) {
             terminalScreen.style.display = 'none';
             document.body.classList.remove('scanning');
             document.body.style.backgroundColor = '#f8f8f8';
             queuePage.style.display = 'flex';
 
-            // 2. Wait for 15 seconds then redirect
             setTimeout(() => {
-                window.location.href = "https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?viewCode=V_blockmap_view";
+                window.location.href = redirectUrl;
             }, 15000); 
+        }
+
+        function showMatchOptions() {
+            const options = document.createElement('div');
+            options.className = "bg-slate-900 p-4 border border-blue-500/30 mt-4 rounded-lg space-y-2";
+            options.innerHTML = `
+                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center mb-2">Menú del Partido:</p>
+                
+                <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-madrid-alaves/21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">IR AL ÁREA DEL PARTIDO</button>
+                
+                <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?queueittoken=e_realmadridliga2526~ts_1776679272~ce_true~q_7638b54a-49bc-4e05-b4ff-5d3a01cbc1c7~rt_queue~ti_1287ef69-9fa8-456c-a580-1f434e2720af~h_75e674d0a7787c6a49f82e6b59085586887a501a2bd5f04713895cc4de73b118&viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA VIP</button>
+                
+                <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_futbol/select/2565552?viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA</button>
+                
+                <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/entradas/real-madrid-alaves-21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">PRECIOS Y FECHAS DE VENTA</button>
+            `;
+            terminal.appendChild(options);
+            terminal.scrollTop = terminal.scrollHeight;
         }
 
         function askRedirect() {
@@ -206,7 +220,7 @@ El bot está funcionando</p>
             terminal.appendChild(prompt);
             terminal.scrollTop = terminal.scrollHeight;
 
-            document.getElementById('rm-trigger').addEventListener('click', startQueueSequence);
+            document.getElementById('rm-trigger').addEventListener('click', showMatchOptions);
         }
 
         btn.addEventListener('click', () => {
