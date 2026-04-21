@@ -71,6 +71,8 @@
         
         .search-input { background: #000; border: 1px solid #1e293b; color: #60a5fa; padding: 8px; width: 70%; font-size: 10px; outline: none; }
         .search-btn { background: #1e40af; color: white; padding: 8px 15px; font-size: 10px; cursor: pointer; border: none; }
+        .match-result-btn { width: 100%; text-align: left; padding: 10px; background: #0f172a; border: 1px solid #1e293b; color: #10b981; font-size: 10px; margin-top: 5px; cursor: pointer; }
+        .match-result-btn:hover { background: #1e293b; border-color: #3b82f6; }
     </style>
 </head>
 <body class="scanning">
@@ -89,7 +91,7 @@
                 <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg">
                     <h3 class="text-[10px] font-bold text-blue-400 mb-2 uppercase">Buscador de Partidos</h3>
                     <div class="flex gap-1">
-                        <input type="text" id="searchInput" class="search-input" placeholder="Ej: Alaves...">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Ej: Alaves, Betis...">
                         <button id="searchBtn" class="search-btn">BUSCAR</button>
                     </div>
                 </div>
@@ -156,61 +158,15 @@
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
 
-        const matches = [
-            "21/04/2026: Real Madrid vs Deportivo Alaves",
-            "26/04/2026: Espanyol vs Real Madrid",
-            "03/05/2026: Real Madrid vs Getafe",
-            "10/05/2026: Valencia CF vs Real Madrid",
-            "13/05/2026: Real Madrid vs Sevilla FC",
-            "17/05/2026: Villarreal CF vs Real Madrid",
-            "24/05/2026: Real Madrid vs Real Sociedad",
-            "28/04/2026: Champions League Semi-Final (Leg 1)",
-            "05/05/2026: Champions League Semi-Final (Leg 2)",
-            "30/05/2026: UEFA Champions League Final - Paris",
-            "25/07/2026: Real Madrid vs AC Milan (USA)",
-            "29/07/2026: Real Madrid vs FC Barcelona (Las Vegas)",
-            "02/08/2026: Real Madrid vs Chelsea FC (USA)",
-            "12/08/2026: UEFA Super Cup",
-            "16/08/2026: La Liga 26/27 - Matchday 1",
-            "23/08/2026: La Liga 26/27 - Matchday 2",
-            "30/08/2026: La Liga 26/27 - Matchday 3",
-            "13/09/2026: La Liga 26/27 - Matchday 4",
-            "16/09/2026: Champions League 26/27 - MD 1",
-            "20/09/2026: La Liga 26/27 - Matchday 5"
+        const matchData = [
+            { name: "Real Madrid vs Deportivo Alaves", date: "21/04/2026", type: "full" },
+            { name: "Real Betis vs Real Madrid", date: "24/04/2026", type: "betis" },
+            { name: "Espanyol vs Real Madrid", date: "03/05/2026", type: "espanyol" },
+            { name: "Barcelona vs Real Madrid", date: "10/05/2026", type: "barcelona" },
+            { name: "Real Madrid vs Real Oviedo", date: "14/05/2026", type: "oviedo" },
+            { name: "Sevilla vs Real Madrid", date: "TBC", type: "sevilla" },
+            { name: "Real Madrid vs Athletic Club", date: "24/05/2026", type: "athletic" }
         ];
-
-        searchBtn.addEventListener('click', () => {
-            const query = searchInput.value.toLowerCase();
-            terminal.innerHTML = `<p class="text-blue-500">[SISTEMA] Buscando: "${query}"...</p>`;
-            const results = matches.filter(m => m.toLowerCase().includes(query));
-            
-            if (results.length > 0) {
-                results.forEach(res => {
-                    const p = document.createElement('p');
-                    p.className = "text-green-400 mt-1 border-b border-slate-800 pb-1";
-                    p.innerText = `> ENCONTRADO: ${res}`;
-                    terminal.appendChild(p);
-                });
-            } else {
-                terminal.innerHTML += `<p class="text-red-500 mt-2">! No se encontraron partidos para esa búsqueda.</p>`;
-            }
-        });
-
-        const logs = [
-            "Estableciendo túnel SSH con nodo MAD-01...",
-            "Sincronizando reloj de servidor con Real Madrid...",
-            "Bypass de Akamai Cookie iniciado...",
-            "Saltando sala de espera virtual (Queue-it)...",
-            "Acceso al checkout desbloqueado."
-        ];
-
-        function generateJSON() {
-            const hex = Math.random().toString(16).toUpperCase().substring(2, 10);
-            const p = document.createElement('p');
-            p.innerText = `{"id":"${hex}","status":"200","bypass":true}`;
-            packetStream.prepend(p);
-            if (packetStream.children.length > 15) packetStream.lastChild.remove();
-        }
 
         function startQueueSequence(redirectUrl) {
             terminalScreen.style.display = 'none';
@@ -220,54 +176,81 @@
             setTimeout(() => { window.location.href = redirectUrl; }, 15000); 
         }
 
-        function showMatchOptions() {
+        function showMatchMenu(type) {
+            terminal.innerHTML = `<p class="text-blue-500 mb-2">Generando menú de acceso bypass para el partido...</p>`;
             const options = document.createElement('div');
-            options.className = "bg-slate-900 p-4 border border-blue-500/30 mt-4 rounded-lg space-y-2";
-            options.innerHTML = `
-                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center mb-2">Menú del Partido:</p>
-                <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-madrid-alaves/21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">IR AL ÁREA DEL PARTIDO</button>
-                <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?queueittoken=e_realmadridliga2526~ts_1776679272~ce_true~q_7638b54a-49bc-4e05-b4ff-5d3a01cbc1c7~rt_queue~ti_1287ef69-9fa8-456c-a580-1f434e2720af~h_75e674d0a7787c6a49f82e6b59085586887a501a2bd5f04713895cc4de73b118&viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA VIP</button>
-                <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_futbol/select/2565552?viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA</button>
-                <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/entradas/real-madrid-alaves-21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">PRECIOS Y FECHAS DE VENTA</button>
-            `;
+            options.className = "bg-slate-900 p-4 border border-blue-500/30 rounded-lg space-y-2";
+            
+            let html = `<p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center mb-2">Menú del Partido:</p>`;
+            
+            if(type === 'full') {
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-madrid-alaves/21-04-2026'" class="match-result-btn">IR AL ÁREA DEL PARTIDO</button>`;
+                html += `<button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?queueittoken=...')" class="match-result-btn">COMPRAR ENTRADA VIP</button>`;
+                html += `<button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_futbol/select/2565552')" class="match-result-btn">COMPRAR ENTRADA</button>`;
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/entradas/real-madrid-alaves-21-04-2026'" class="match-result-btn">PRECIOS Y FECHAS DE VENTA</button>`;
+            } else if(type === 'betis') {
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-betis-real-madrid/24-04-2026'" class="match-result-btn">IR AL ÁREA DEL PARTIDO</button>`;
+            } else if(type === 'espanyol') {
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/espanyol-real-madrid/03-05-2026'" class="match-result-btn">IR AL ÁREA DEL PARTIDO</button>`;
+            } else if(type === 'barcelona') {
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/barcelona-real-madrid/10-05-2026'" class="match-result-btn">IR AL ÁREA DEL PARTIDO</button>`;
+            } else if(type === 'oviedo') {
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-madrid-real-oviedo/14-05-2026'" class="match-result-btn">IR AL ÁREA DEL PARTIDO</button>`;
+                html += `<button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565597?hl=es-ES')" class="match-result-btn">COMPRAR ENTRADA VIP</button>`;
+            } else if(type === 'sevilla') {
+                html += `<p class="text-yellow-500 text-center text-[10px]">FECHA Y HORA POR CONFIRMAR</p>`;
+            } else if(type === 'athletic') {
+                html += `<button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565602?hl=es-ES')" class="match-result-btn">COMPRAR ENTRADA VIP</button>`;
+                html += `<button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/entradas/real-madrid-athletic-club-24-05-2026'" class="match-result-btn">PRECIOS Y FECHAS DE VENTA</button>`;
+            }
+
+            options.innerHTML = html;
             terminal.appendChild(options);
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        function askRedirect() {
-            const prompt = document.createElement('div');
-            prompt.className = "bg-slate-800 p-4 border border-blue-500/30 mt-4 rounded-lg space-y-3";
-            prompt.innerHTML = `
-                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center">Seleccionar Portal:</p>
-                <div class="grid grid-cols-1 gap-2">
-                    <button id="rm-trigger" class="w-full py-2 bg-blue-900/40 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold">Real Madrid Official</button>
-                    <button onclick="window.location.href='https://www.ticketmaster.es'" class="w-full py-2 bg-slate-900 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold">Ticketmaster España</button>
-                </div>
-            `;
-            terminal.appendChild(prompt);
-            terminal.scrollTop = terminal.scrollHeight;
-            document.getElementById('rm-trigger').addEventListener('click', showMatchOptions);
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.toLowerCase();
+            terminal.innerHTML = `<p class="text-blue-500">[SISTEMA] Buscando: "${query}"...</p>`;
+            const results = matchData.filter(m => m.name.toLowerCase().includes(query));
+            
+            if (results.length > 0) {
+                results.forEach(res => {
+                    const b = document.createElement('button');
+                    b.className = "match-result-btn";
+                    b.innerHTML = `> ${res.name} (${res.date})`;
+                    b.onclick = () => showMatchMenu(res.type);
+                    terminal.appendChild(b);
+                });
+            } else {
+                terminal.innerHTML += `<p class="text-red-500 mt-2">! No se encontraron partidos.</p>`;
+            }
+        });
+
+        const logs = ["Estableciendo túnel SSH...", "Sincronizando reloj...", "Bypass Akamai...", "Saltando Queue-it...", "Acceso desbloqueado."];
+        function generateJSON() {
+            const hex = Math.random().toString(16).toUpperCase().substring(2, 10);
+            const p = document.createElement('p');
+            p.innerText = `{"id":"${hex}","status":"200"}`;
+            packetStream.prepend(p);
+            if (packetStream.children.length > 15) packetStream.lastChild.remove();
         }
 
         btn.addEventListener('click', () => {
-            btn.disabled = true;
-            btn.innerText = "EJECUTANDO...";
-            terminal.innerHTML = "";
+            btn.disabled = true; btn.innerText = "EJECUTANDO..."; terminal.innerHTML = "";
             const packetInterval = setInterval(generateJSON, 300);
             let i = 0;
             const logInterval = setInterval(() => {
                 if (i < logs.length) {
                     const line = document.createElement('p');
-                    line.className = "mb-1 border-l-2 border-blue-500 pl-2 bg-blue-500/5";
-                    line.innerHTML = `<span class="text-blue-400">${logs[i]}</span>`;
+                    line.className = "text-blue-400";
+                    line.innerHTML = `<span>${logs[i]}</span>`;
                     terminal.appendChild(line);
-                    terminal.scrollTop = terminal.scrollHeight;
                     i++;
                 } else {
-                    clearInterval(logInterval);
-                    clearInterval(packetInterval);
-                    askRedirect();
-                    btn.innerText = "ACCESO DISPONIBLE";
+                    clearInterval(logInterval); clearInterval(packetInterval);
+                    terminal.innerHTML += `<p class="text-green-500 mt-2 font-bold">ACCESO CONCEDIDO. USA EL BUSCADOR PARA SELECCIONAR UN PARTIDO.</p>`;
+                    btn.innerText = "SISTEMA ACTIVO";
                 }
             }, 1000);
         });
