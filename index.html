@@ -8,7 +8,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
         
-        /* Terminal Styles */
         body { font-family: 'JetBrains+Mono', monospace; background-color: #020617; margin: 0; overflow-x: hidden; }
         .scanning { background: linear-gradient(to bottom, transparent 50%, rgba(59, 130, 246, 0.1) 50%); background-size: 100% 4px; }
         ::-webkit-scrollbar { width: 4px; }
@@ -16,7 +15,6 @@
         .node-pulse { animation: node-pulse 2s infinite; }
         @keyframes node-pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* Queue-it Page Styles (Hidden by default) */
         #queue-page {
             display: none;
             background-color: #f8f8f8;
@@ -39,22 +37,9 @@
             position: relative;
         }
 
-        .header-queue {
-            padding: 25px 20px 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid #001f4c;
-        }
-
+        .header-queue { padding: 25px 20px 15px 20px; text-align: left; border-bottom: 1px solid #001f4c; }
         .header-queue img { height: 35px; width: auto; }
-
-        .content-queue {
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
+        .content-queue { padding: 40px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .top-notice { font-size: 12px; color: #333; margin-bottom: 40px; }
         .title-queue { font-size: 32px; font-weight: 500; margin-bottom: 15px; }
         .description-queue { font-size: 14px; line-height: 1.5; color: #000; margin-bottom: 30px; }
@@ -82,10 +67,10 @@
         .cola-info strong { color: #333; margin-right: 5px; }
         .footer-logo { margin-top: 25px; height: 66px; width: auto; object-fit: contain; }
 
-        @keyframes load {
-            0% { width: 5%; }
-            100% { width: 100%; }
-        }
+        @keyframes load { 0% { width: 5%; } 100% { width: 100%; } }
+        
+        .search-input { background: #000; border: 1px solid #1e293b; color: #60a5fa; padding: 8px; width: 70%; font-size: 10px; outline: none; }
+        .search-btn { background: #1e40af; color: white; padding: 8px 15px; font-size: 10px; cursor: pointer; border: none; }
     </style>
 </head>
 <body class="scanning">
@@ -101,6 +86,13 @@
                         <div class="flex justify-between items-center"><span class="text-slate-500">TOKIO_JP</span><span class="w-2 h-2 bg-yellow-500 rounded-full node-pulse"></span></div>
                     </div>
                 </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-lg">
+                    <h3 class="text-[10px] font-bold text-blue-400 mb-2 uppercase">Buscador de Partidos</h3>
+                    <div class="flex gap-1">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Ej: Alaves...">
+                        <button id="searchBtn" class="search-btn">BUSCAR</button>
+                    </div>
+                </div>
             </div>
 
             <div class="col-span-12 lg:col-span-6 space-y-4">
@@ -114,7 +106,7 @@
                             INICIAR SECUENCIA DE ACCESO
                         </button>
                         <div id="main-terminal" class="bg-black border border-slate-800 rounded p-4 h-72 overflow-y-auto font-mono text-[11px] leading-relaxed shadow-inner">
-                            <p class="text-slate-600 italic">Esperando inicialización de hardware...</p>
+                            <p class="text-slate-600 italic">Esperando inicialización de hardware o búsqueda...</p>
                         </div>
                     </div>
                 </div>
@@ -161,6 +153,48 @@
         const btn = document.getElementById('runBtn');
         const terminalScreen = document.getElementById('terminal-screen');
         const queuePage = document.getElementById('queue-page');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+
+        const matches = [
+            "21/04/2026: Real Madrid vs Deportivo Alaves",
+            "26/04/2026: Espanyol vs Real Madrid",
+            "03/05/2026: Real Madrid vs Getafe",
+            "10/05/2026: Valencia CF vs Real Madrid",
+            "13/05/2026: Real Madrid vs Sevilla FC",
+            "17/05/2026: Villarreal CF vs Real Madrid",
+            "24/05/2026: Real Madrid vs Real Sociedad",
+            "28/04/2026: Champions League Semi-Final (Leg 1)",
+            "05/05/2026: Champions League Semi-Final (Leg 2)",
+            "30/05/2026: UEFA Champions League Final - Paris",
+            "25/07/2026: Real Madrid vs AC Milan (USA)",
+            "29/07/2026: Real Madrid vs FC Barcelona (Las Vegas)",
+            "02/08/2026: Real Madrid vs Chelsea FC (USA)",
+            "12/08/2026: UEFA Super Cup",
+            "16/08/2026: La Liga 26/27 - Matchday 1",
+            "23/08/2026: La Liga 26/27 - Matchday 2",
+            "30/08/2026: La Liga 26/27 - Matchday 3",
+            "13/09/2026: La Liga 26/27 - Matchday 4",
+            "16/09/2026: Champions League 26/27 - MD 1",
+            "20/09/2026: La Liga 26/27 - Matchday 5"
+        ];
+
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.toLowerCase();
+            terminal.innerHTML = `<p class="text-blue-500">[SISTEMA] Buscando: "${query}"...</p>`;
+            const results = matches.filter(m => m.toLowerCase().includes(query));
+            
+            if (results.length > 0) {
+                results.forEach(res => {
+                    const p = document.createElement('p');
+                    p.className = "text-green-400 mt-1 border-b border-slate-800 pb-1";
+                    p.innerText = `> ENCONTRADO: ${res}`;
+                    terminal.appendChild(p);
+                });
+            } else {
+                terminal.innerHTML += `<p class="text-red-500 mt-2">! No se encontraron partidos para esa búsqueda.</p>`;
+            }
+        });
 
         const logs = [
             "Estableciendo túnel SSH con nodo MAD-01...",
@@ -183,10 +217,7 @@
             document.body.classList.remove('scanning');
             document.body.style.backgroundColor = '#f8f8f8';
             queuePage.style.display = 'flex';
-
-            setTimeout(() => {
-                window.location.href = redirectUrl;
-            }, 15000); 
+            setTimeout(() => { window.location.href = redirectUrl; }, 15000); 
         }
 
         function showMatchOptions() {
@@ -194,13 +225,9 @@
             options.className = "bg-slate-900 p-4 border border-blue-500/30 mt-4 rounded-lg space-y-2";
             options.innerHTML = `
                 <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest text-center mb-2">Menú del Partido:</p>
-                
                 <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/la-liga/real-madrid-alaves/21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">IR AL ÁREA DEL PARTIDO</button>
-                
                 <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_ligamatchday/select/2565552?queueittoken=e_realmadridliga2526~ts_1776679272~ce_true~q_7638b54a-49bc-4e05-b4ff-5d3a01cbc1c7~rt_queue~ti_1287ef69-9fa8-456c-a580-1f434e2720af~h_75e674d0a7787c6a49f82e6b59085586887a501a2bd5f04713895cc4de73b118&viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA VIP</button>
-                
                 <button onclick="startQueueSequence('https://tickets.realmadrid.com/realmadrid_futbol/select/2565552?viewCode=V_blockmap_view')" class="w-full py-2 bg-blue-900/60 hover:bg-blue-600 border border-blue-500/50 rounded text-[9px] uppercase font-bold text-white transition-colors">COMPRAR ENTRADA</button>
-                
                 <button onclick="window.location.href='https://www.realmadrid.com/es-ES/futbol/partidos/entradas/real-madrid-alaves-21-04-2026'" class="w-full py-2 bg-slate-800 hover:bg-blue-600 border border-slate-700 rounded text-[9px] uppercase font-bold text-white transition-colors">PRECIOS Y FECHAS DE VENTA</button>
             `;
             terminal.appendChild(options);
@@ -219,7 +246,6 @@
             `;
             terminal.appendChild(prompt);
             terminal.scrollTop = terminal.scrollHeight;
-
             document.getElementById('rm-trigger').addEventListener('click', showMatchOptions);
         }
 
